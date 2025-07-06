@@ -1,3 +1,4 @@
+# AI Assistant For Academic Paper
 Tujuan proyek sangat jelas: Sistem AI yang membantu mahasiswa dan peneliti dalam menyusun karya tulis ilmiah dengan mempermudah proses penulisan paper akademik dari tahap awal hingga final.
 Latar belakang kuat: Proses penulisan karya tulis ilmiah sering kali menjadi tantangan besar bagi mahasiswa dan peneliti, terutama dalam hal struktur penulisan, metodologi penelitian, dan format akademik yang tepat.
 Permasalahan spesifik yang relevan: Banyak penulis kesulitan dalam mengorganisir ide, menyusun kerangka penelitian yang sistematis, dan memastikan kesesuaian dengan standar penulisan ilmiah.
