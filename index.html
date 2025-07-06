@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent untuk Karya Tulis Ilmiah</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            animation: gradientShift 10s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+            50% { background: linear-gradient(135deg, #764ba2 0%, #667eea 100%); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            color: #333;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.8;
+            color: #666;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 20px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .tab-button:hover::before {
+            left: 100%;
+        }
+
+        .tab-button:hover {
+            color: #333;
+            transform: translateY(-2px);
+        }
+
+        .tab-button.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            min-height: 600px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tab-content h3 {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 1.8em;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.8);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1.1em;
+            background: rgba(255,255,255,0.8);
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(45deg, #17a2b8, #6f42c1);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(23, 162, 184, 0.4);
+        }
+
+        .file-upload {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .file-upload input[type="file"] {
+            flex: 1;
+            padding: 15px;
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            background: rgba(248, 249, 250, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        .file-upload input[type="file"]:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .output {
+            background: rgba(248, 249, 250, 0.9);
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 25px;
+            max-height: 500px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            backdrop-filter: blur(5px);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            color: #667eea;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid rgba(102, 126, 234, 0.1);
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 25px;
+            color: white;
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .alert {
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            font-weight: 500;
+            border-left: 5px solid;
+        }
+
+        .alert-info {
+            background: rgba(209, 236, 241, 0.9);
+            border-left-color: #17a2b8;
+            color: #0c5460;
+        }
+
+        .alert-success {
+            background: rgba(212, 237, 218, 0.9);
+            border-left-color: #28a745;
+            color: #155724;
+        }
+
+        .alert-warning {
+            background: rgba(255, 243, 205, 0.9);
+            border-left-color: #ffc107;
+            color: #856404;
+        }
+
+        .alert-error {
+            background: rgba(248, 215, 218, 0.9);
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .search-container {
+                flex-direction: column;
+            }
+            
+            .file-upload {
+                flex-direction: column;
+            }
+            
+            .header h1 {
+                font-size: 2.2em;
+            }
+            
+            .tab-content {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI Agent untuk Karya Tulis Ilmiah</h1>
+            <p>Asisten AI untuk pencarian paper dan pembuatan karya tulis ilmiah</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('search')">🔍 Pencarian Pintar</button>
+            <button class="tab-button" onclick="showTab('generator')">📝 Generator Paper</button>
+            <button class="tab-button" onclick="showTab('upload')">📁 Upload Data</button>
+        </div>
+
+        <!-- Search Tab -->
+        <div id="search" class="tab-content active">
+            <h3>🔍 Pencarian Pintar Paper Akademik</h3>
+            <div class="search-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="Masukkan pertanyaan atau topik penelitian...">
+                <button class="btn btn-primary" onclick="searchPapers()">Cari</button>
+            </div>
+            <div class="loading" id="searchLoading">
+                <div class="spinner"></div>
+                <p>Mencari paper yang relevan...</p>
+            </div>
+            <div class="output" id="searchOutput"></div>
+        </div>
+
+        <!-- Generator Tab -->
+        <div id="generator" class="tab-content">
+            <h3>📝 Generator Paper Akademik</h3>
+            <div class="form-group">
+                <label for="titleInput">Judul:</label>
+                <input type="text" id="titleInput" placeholder="Masukkan judul penelitian (opsional)">
+            </div>
+            <div class="form-group">
+                <label for="abstractInput">Abstract:</label>
+                <textarea id="abstractInput" placeholder="Masukkan abstract (opsional)"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="methodInput">Metodologi:</label>
+                <textarea id="methodInput" placeholder="Masukkan metodologi penelitian (opsional)"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="promptInput">Custom Prompt:</label>
+                <textarea id="promptInput" placeholder="Atau masukkan prompt khusus untuk jenis penelitian yang diinginkan"></textarea>
+            </div>
+            <button class="btn btn-success" onclick="generatePaper()">Generate Paper</button>
+            <div class="loading" id="generateLoading">
+                <div class="spinner"></div>
+                <p>Generating paper...</p>
+            </div>
+            <div class="output" id="generateOutput"></div>
+        </div>
+
+        <!-- Upload Tab -->
+        <div id="upload" class="tab-content">
+            <h3>📁 Upload Data Paper</h3>
+            <div class="alert alert-info">
+                <strong>Info:</strong> Upload file CSV atau JSON yang berisi data paper akademik untuk meningkatkan hasil pencarian.
+            </div>
+            <p><strong>Option 1: Upload file CSV atau JSON secara manual</strong></p>
+            <div class="file-upload">
+                <input type="file" id="csvFile" accept=".csv" onchange="handleFileUpload(this, 'csv')">
+                <input type="file" id="jsonFile" accept=".json" onchange="handleFileUpload(this, 'json')">
+            </div>
+            <p><strong>Option 2: Load sample data</strong></p>
+            <button class="btn btn-info" onclick="loadSampleData()">Load Sample Data</button>
+            <div class="loading" id="uploadLoading">
+                <div class="spinner"></div>
+                <p>Processing files...</p>
+            </div>
+            <div class="output" id="uploadOutput"></div>
+        </div>
+
+        <div class="footer">
+            <p>Powered by JavaScript & Modern Web Technologies | Developed for Academic Research</p>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+let papersData = [];
+let isDataLoaded = false;
+
+// Sample data as fallback
+const sampleData = [
+  {
+    title: "Machine Learning untuk Analisis Sentimen Media Sosial",
+    authors: ["Ahmad Fauzi", "Siti Nurhaliza"],
+    year: "2023",
+    journal: "Jurnal Teknologi Informasi",
+    abstract:
+      "Penelitian ini menggunakan machine learning untuk menganalisis sentimen pada media sosial dengan akurasi 85%",
+    keywords: ["machine learning", "sentiment analysis", "social media"],
+    categories: "Computer Science",
+    citation_count: 12,
+    url: "https://example.com/paper1",
+  },
+  {
+    title: "Deep Learning untuk Klasifikasi Citra Medis",
+    authors: ["Budi Santoso", "Maya Sari", "Rudi Hermawan"],
+    year: "2023",
+    journal: "Indonesian Journal of AI",
+    abstract:
+      "Implementasi CNN untuk klasifikasi citra medis dengan deep learning mencapai akurasi 92%",
+    keywords: ["deep learning", "CNN", "medical imaging"],
+    categories: "Artificial Intelligence",
+    citation_count: 25,
+    url: "https://example.com/paper2",
+  },
+  {
+    title:
+      "Sistem Rekomendasi E-commerce menggunakan Collaborative Filtering",
+    authors: ["Dewi Lestari", "Andi Wijaya"],
+    year: "2022",
+    journal: "Jurnal Sistem Informasi",
+    abstract:
+      "Pengembangan sistem rekomendasi untuk e-commerce menggunakan collaborative filtering dengan precision 78%",
+    keywords: [
+      "recommendation system",
+      "collaborative filtering",
+      "e-commerce",
+    ],
+    categories: "Information Systems",
+    citation_count: 8,
+    url: "https://example.com/paper3",
+  },
+];
+
+// Initialize application
+function init() {
+  console.log("Initializing application...");
+
+  // Try to load external files first, fallback to sample data
+  loadExternalFiles()
+    .then(() => {
+      console.log("External files loaded successfully");
+      showTab("search");
+      showAlert("uploadOutput", "success", "Data loaded successfully!");
+    })
+    .catch((error) => {
+      console.log(
+        "Loading external files failed, using sample data:",
+        error
+      );
+      loadSampleData();
+      showTab("search");
+    });
+}
+
+// Load external CSV and JSON files
+async function loadExternalFiles() {
+  try {
+    // Try to load CSV file
+    const csvResponse = await fetch("indonesian_cs_papers.csv");
+    if (csvResponse.ok) {
+      const csvText = await csvResponse.text();
+      const csvData = parseCSV(csvText);
+      papersData = [...papersData, ...csvData];
+      console.log("CSV loaded:", csvData.length, "papers");
+    }
+  } catch (error) {
+    console.log("CSV loading failed:", error);
+  }
+
+  try {
+    // Try to load JSON file
+    const jsonResponse = await fetch("indonesian_cs_papers.json");
+    if (jsonResponse.ok) {
+      const jsonData = await jsonResponse.json();
+      papersData = [...papersData, ...jsonData];
+      console.log("JSON loaded:", jsonData.length, "papers");
+    }
+  } catch (error) {
+    console.log("JSON loading failed:", error);
+  }
+
+  // If no data loaded from files, throw error to trigger fallback
+  if (papersData.length === 0) {
+    throw new Error("No external data files could be loaded");
+  }
+
+  isDataLoaded = true;
+  updateUploadOutput();
+}
+
+// Update upload output display
+function updateUploadOutput() {
+  const output = document.getElementById("uploadOutput");
+  if (output) {
+    output.innerHTML = `✅ Successfully loaded ${
+      papersData.length
+    } papers!
+📊 Data Summary:
+${papersData
+  .slice(0, 5)
+  .map(
+    (paper, index) =>
+      `   ${index + 1}. ${paper.title || "Untitled"} (${paper.year || "N/A"})`
+  )
+  .join("\n")}
+
+Total papers in database: ${papersData.length}`;
+  }
+}
+
+// Tab switching
+function showTab(tabName) {
+  // Hide all tabs
+  const tabs = document.querySelectorAll(".tab-content");
+  tabs.forEach((tab) => tab.classList.remove("active"));
+
+  // Remove active class from all buttons
+  const buttons = document.querySelectorAll(".tab-button");
+  buttons.forEach((button) => button.classList.remove("active"));
+
+  // Show selected tab
+  const selectedTab = document.getElementById(tabName);
+  if (selectedTab) {
+    selectedTab.classList.add("active");
+  }
+
+  // Add active class to clicked button
+  const activeButton = document.querySelector(
+    `[onclick="showTab('${tabName}')"]`
+  );
+  if (activeButton) {
+    activeButton.classList.add("active");
+  }
+}
+
+// Load sample data
+function loadSampleData() {
+  const output = document.getElementById("uploadOutput");
+  const loading = document.getElementById("uploadLoading");
+
+  if (loading) loading.classList.add("show");
+
+  // Simulate loading with shorter delay
+  setTimeout(() => {
+    papersData = [...sampleData];
+    isDataLoaded = true;
+
+    if (loading) loading.classList.remove("show");
+    if (output) {
+      output.innerHTML = `✅ Successfully loaded ${
+        papersData.length
+      } sample papers!
+📊 Sample data loaded:
+${papersData
+  .map((paper, index) => `   ${index + 1}. ${paper.title} (${paper.year})`)
+  .join("\n")}
+
+Total papers in database: ${papersData.length}`;
+    }
+
+    showAlert(
+      "uploadOutput",
+      "success",
+      "Sample data loaded successfully!"
+    );
+  }, 500);
+}
+
+// Handle file upload
+function handleFileUpload(input, fileType) {
+  const file = input.files[0];
+  const output = document.getElementById("uploadOutput");
+  const loading = document.getElementById("uploadLoading");
+
+  if (!file) return;
+
+  if (loading) loading.classList.add("show");
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      let data;
+      if (fileType === "csv") {
+        data = parseCSV(e.target.result);
+      } else if (fileType === "json") {
+        data = JSON.parse(e.target.result);
+      }
+
+      if (data && data.length > 0) {
+        papersData = [...papersData, ...data];
+        isDataLoaded = true;
+
+        if (loading) loading.classList.remove("show");
+        if (output) {
+          output.innerHTML = `✅ Successfully loaded ${
+            data.length
+          } papers from ${fileType.toUpperCase()} file!
+📊 Total papers in database: ${papersData.length}
+
+Sample loaded data:
+${data
+  .slice(0, 3)
+  .map(
+    (paper, index) =>
+      `   ${index + 1}. ${paper.title || "Untitled"} (${paper.year || "N/A"})`
+  )
+  .join("\n")}`;
+        }
+
+        showAlert(
+          "uploadOutput",
+          "success",
+          `${
+            data.length
+          } papers loaded from ${fileType.toUpperCase()} file!`
+        );
+      } else {
+        throw new Error("No valid data found in file");
+      }
+    } catch (error) {
+      if (loading) loading.classList.remove("show");
+      if (output) {
+        output.innerHTML = `❌ Error processing ${fileType.toUpperCase()} file: ${
+          error.message
+        }`;
+      }
+      showAlert(
+        "uploadOutput",
+        "error",
+        `Error processing ${fileType.toUpperCase()} file: ${
+          error.message
+        }`
+      );
+    }
+  };
+
+  reader.readAsText(file);
+}
+
+// Simple CSV parser
+function parseCSV(text) {
+  const lines = text.split("\n");
+  if (lines.length < 2) return [];
+
+  const headers = lines[0]
+    .split(",")
+    .map((h) => h.trim().replace(/"/g, ""));
+  const data = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line) {
+      const values = line
+        .split(",")
+        .map((v) => v.trim().replace(/"/g, ""));
+      const row = {};
+      headers.forEach((header, index) => {
+        row[header] = values[index] || "";
+      });
+      // Convert comma-separated keywords to array if exists
+      if (row.keywords && typeof row.keywords === "string") {
+        row.keywords = row.keywords
+          .split(";")
+          .map((k) => k.trim())
+          .filter((k) => k);
+      }
+      // Convert comma-separated authors to array if exists
+      if (row.authors && typeof row.authors === "string") {
+        row.authors = row.authors
+          .split(";")
+          .map((a) => a.trim())
+          .filter((a) => a);
+      }
+      data.push(row);
+    }
+  }
+
+  return data;
+}
+
+// Search papers
+function searchPapers() {
+  const query = document.getElementById("searchInput").value.trim();
+  const output = document.getElementById("searchOutput");
+  const loading = document.getElementById("searchLoading");
+
+  if (!query) {
+    if (output) output.innerHTML = "⚠️ Please enter a search query";
+    return;
+  }
+
+  if (!isDataLoaded || papersData.length === 0) {
+    if (output)
+      output.innerHTML =
+        "⚠️ No data loaded. Please load data first in the Upload Data tab.";
+    return;
+  }
+
+  if (loading) loading.classList.add("show");
+
+  // Reduced search delay
+  setTimeout(() => {
+    const results = performSearch(query);
+    if (loading) loading.classList.remove("show");
+
+    if (results.length > 0) {
+      const answer = generateSmartAnswer(query, results);
+      if (output) {
+        output.innerHTML = `🔍 Found ${results.length} relevant papers
+
+🤖 AI Answer:
+${answer}
+
+📖 Reference Sources:
+${results
+  .slice(0, 5)
+  .map(
+    (paper, index) => `
+${index + 1}. ${formatCitation(paper)}
+   📊 Citations: ${paper.citation_count || 0}
+   🏷️ Categories: ${paper.categories || "N/A"}
+   📄 ${paper.url ? `URL: ${paper.url}` : "No URL available"}
+`
+  )
+  .join("\n")}`;
+      }
+    } else {
+      if (output)
+        output.innerHTML = "❌ No relevant papers found for your query.";
+    }
+  }, 800);
+}
+
+// Perform search
+function performSearch(query) {
+  const queryLower = query.toLowerCase();
+  const results = [];
+
+  papersData.forEach((paper) => {
+    let score = 0;
+
+    // Search in title (highest priority)
+    if (paper.title && paper.title.toLowerCase().includes(queryLower)) {
+      score += 10;
+    }
+
+    // Search in abstract (medium priority)
+    if (
+      paper.abstract &&
+      paper.abstract.toLowerCase().includes(queryLower)
+    ) {
+      score += 5;
+    }
+
+    // Search in keywords (medium priority)
+    if (paper.keywords) {
+      const keywords = Array.isArray(paper.keywords)
+        ? paper.keywords
+        : [paper.keywords];
+      keywords.forEach((keyword) => {
+        if (keyword && keyword.toLowerCase().includes(queryLower)) {
+          score += 3;
+        }
+      });
+    }
+
+    // Search in journal (low priority)
+    if (
+      paper.journal &&
+      paper.journal.toLowerCase().includes(queryLower)
+    ) {
+      score += 2;
+    }
+
+    // Search in categories (low priority)
+    if (
+      paper.categories &&
+      paper.categories.toLowerCase().includes(queryLower)
+    ) {
+      score += 2;
+    }
+
+    // Search in authors (low priority)
+    if (paper.authors) {
+      const authors = Array.isArray(paper.authors)
+        ? paper.authors
+        : [paper.authors];
+      authors.forEach((author) => {
+        if (author && author.toLowerCase().includes(queryLower)) {
+          score += 1;
+        }
+      });
+    }
+
+    if (score > 0) {
+      paper.relevance_score = score;
+      results.push(paper);
+    }
+  });
+
+  return results.sort(
+    (a, b) => (b.relevance_score || 0) - (a.relevance_score || 0)
+  );
+}
+
+// Generate smart answer
+function generateSmartAnswer(query, papers) {
+  const topPapers = papers.slice(0, 3);
+
+  const methods = extractMethods(topPapers);
+  const findings = extractFindings(topPapers);
+
+  return `Berdasarkan analisis ${
+    topPapers.length
+  } paper teratas yang relevan dengan "${query}":
+
+📍 RINGKASAN TEMUAN:
+${findings.join("\n")}
+
+🔬 METODOLOGI YANG DIGUNAKAN:
+${methods.join("\n")}
+
+💡 REKOMENDASI:
+- Penelitian lebih lanjut dapat mengeksplorasi kombinasi metode yang telah terbukti efektif
+- Pertimbangkan untuk menggunakan dataset yang lebih besar untuk validasi
+- Implementasi cross-validation untuk memastikan reliabilitas hasil
+
+📚 Sumber utama: ${topPapers.map((p) => p.title).join(", ")}`;
+}
+
+// Extract methods from papers
+function extractMethods(papers) {
+  const methods = [];
+  papers.forEach((paper) => {
+    if (paper.abstract) {
+      const abstract = paper.abstract.toLowerCase();
+      if (abstract.includes("random forest"))
+        methods.push("• Random Forest algorithm");
+      if (abstract.includes("cnn") || abstract.includes("convolutional"))
+        methods.push("• Convolutional Neural Network (CNN)");
+      if (abstract.includes("svm") || abstract.includes("support vector"))
+        methods.push("• Support Vector Machine (SVM)");
+      if (abstract.includes("deep learning"))
+        methods.push("• Deep Learning techniques");
+      if (abstract.includes("collaborative filtering"))
+        methods.push("• Collaborative Filtering");
+      if (
+        abstract.includes("nlp") ||
+        abstract.includes("natural language")
+      )
+        methods.push("• Natural Language Processing (NLP)");
+    }
+  });
+  return [...new Set(methods)];
+}
+
+// Extract findings from papers
+function extractFindings(papers) {
+  const findings = [];
+  papers.forEach((paper) => {
+    if (paper.abstract) {
+      const abstract = paper.abstract;
+      if (abstract.includes("akurasi") || abstract.includes("accuracy")) {
+        findings.push(
+          `• ${paper.title} menunjukkan hasil yang promising dalam hal akurasi`
+        );
+      }
+      if (
+        abstract.includes("efektif") ||
+        abstract.includes("effective")
+      ) {
+        findings.push(
+          `• Metode yang digunakan dalam ${paper.title} terbukti efektif`
+        );
+      }
+      if (
+        abstract.includes("precision") ||
+        abstract.includes("presisi")
+      ) {
+        findings.push(
+          `• ${paper.title} menunjukkan tingkat precision yang tinggi`
+        );
+      }
+    }
+  });
+  return findings.length > 0
+    ? findings
+    : [
+        "• Penelitian-penelitian ini menunjukkan perkembangan yang signifikan dalam bidang yang diteliti",
+      ];
+}
+
+// Format citation
+function formatCitation(paper) {
+  if (paper.citation && paper.citation.trim()) {
+    return paper.citation;
+  }
+
+  let authors = "Unknown Author";
+  if (paper.authors && paper.authors.length > 0) {
+    const authorArray = Array.isArray(paper.authors)
+      ? paper.authors
+      : [paper.authors];
+    if (authorArray.length === 1) {
+      authors = authorArray[0];
+    } else if (authorArray.length === 2) {
+      authors = `${authorArray[0]} & ${authorArray[1]}`;
+    } else {
+      authors = `${authorArray[0]} et al.`;
+    }
+  }
+
+  const year = paper.year || "N/A";
+  const title = paper.title || "Untitled";
+  const journal = paper.journal || "Unknown Journal";
+
+  return `${authors} (${year}). ${title}. ${journal}.`;
+}
+
+// IMPROVED PAPER GENERATION FUNCTIONS
+// ====================================
+
+// Generate paper based on training data
+function generatePaper() {
+  const title = document.getElementById("titleInput").value.trim();
+  const abstract = document.getElementById("abstractInput").value.trim();
+  const method = document.getElementById("methodInput").value.trim();
+  const customPrompt = document.getElementById("promptInput").value.trim();
+  const output = document.getElementById("generateOutput");
+  const loading = document.getElementById("generateLoading");
+
+  if (!title && !abstract && !method && !customPrompt) {
+    if (output)
+      output.innerHTML = "⚠️ Please provide at least one input field";
+    return;
+  }
+
+  if (!isDataLoaded || papersData.length === 0) {
+    if (output)
+      output.innerHTML = "⚠️ No training data loaded. Please load data first.";
+    return;
+  }
+
+  if (loading) loading.classList.add("show");
+
+  setTimeout(() => {
+    const generatedPaper = generatePaperFromTrainingData(
+      title,
+      abstract,
+      method,
+      customPrompt
+    );
+    if (loading) loading.classList.remove("show");
+    if (output) output.innerHTML = generatedPaper;
+    showAlert(
+      "generateOutput",
+      "success",
+      "Paper generated based on training data!"
+    );
+  }, 1000);
+}
+
+// Generate paper structure from training data
+function generatePaperFromTrainingData(title, abstract, method, customPrompt) {
+  // Find relevant papers from training data
+  const relevantPapers = findRelevantPapers(title, abstract, method, customPrompt);
+  
+  // Analyze training data patterns
+  const patterns = analyzeTrainingPatterns(relevantPapers);
+  
+  // Generate paper based on learned patterns
+  const generatedTitle = generateTitleFromPatterns(title, patterns);
+  const generatedAbstract = generateAbstractFromPatterns(abstract, patterns);
+  const generatedKeywords = generateKeywordsFromPatterns(patterns);
+  const generatedMethodology = generateMethodologyFromPatterns(method, patterns);
+  const generatedReferences = generateReferencesFromTrainingData(relevantPapers);
+
+  return `📄 AI-GENERATED PAPER (Based on Training Data Analysis)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🤖 Generated using patterns from ${papersData.length} Indonesian CS papers
+
+🏷️ TITLE: ${generatedTitle}
+
+👥 AUTHORS: ${generateAuthorsFromPatterns(patterns)}
+📅 YEAR: ${new Date().getFullYear()}
+🏫 INSTITUTION: ${generateInstitutionFromPatterns(patterns)}
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📋 ABSTRACT
+${generatedAbstract}
+
+🔑 KEYWORDS: ${generatedKeywords.join(", ")}
+
+📊 PREDICTED METRICS (based on similar papers):
+• Expected Accuracy: ${patterns.avgAccuracy}%
+• Research Category: ${patterns.commonCategory}
+• Methodology: ${patterns.commonMethod}
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📖 1. PENDAHULUAN
+
+1.1 Latar Belakang
+${generateIntroductionFromPatterns(patterns)}
+
+1.2 Rumusan Masalah
+${generateProblemStatementFromPatterns(patterns)}
+
+1.3 Tujuan Penelitian
+${generateObjectivesFromPatterns(patterns)}
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🔬 2. METODOLOGI
+
+2.1 Pendekatan Penelitian
+${generatedMethodology}
+
+2.2 Data dan Preprocessing
+${generateDataSectionFromPatterns(patterns)}
+
+2.3 Model dan Algoritma
+${generateModelSectionFromPatterns(patterns)}
+
+2.4 Evaluasi
+${generateEvaluationFromPatterns(patterns)}
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📊 3. HASIL DAN PEMBAHASAN
+
+3.1 Hasil Eksperimen
+${generateResultsFromPatterns(patterns)}
+
+3.2 Analisis Performa
+${generatePerformanceAnalysisFromPatterns(patterns)}
+
+3.3 Perbandingan dengan Penelitian Sebelumnya
+${generateComparisonFromPatterns(patterns)}
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🎯 4. KESIMPULAN
+
+${generateConclusionFromPatterns(patterns)}
+
+Saran untuk penelitian selanjutnya:
+${generateFutureWorkFromPatterns(patterns)}
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📚 REFERENCES (Based on Training Data)
+
+${generatedReferences}
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📈 TRAINING DATA INSIGHTS:
+• Total papers analyzed: ${papersData.length}
+• Similar papers found: ${relevantPapers.length}
+• Common research themes: ${patterns.commonThemes.join(", ")}
+• Average citation count: ${patterns.avgCitations}
+
+═══════════════════════════════════════════════════════════════════════════════`;
+}
+
+// Find relevant papers from training data
+function findRelevantPapers(title, abstract, method, customPrompt) {
+  const searchTerms = [title, abstract, method, customPrompt]
+    .filter(term => term)
+    .join(" ")
+    .toLowerCase();
+
+  return papersData.filter(paper => {
+    const paperText = [
+      paper.title,
+      paper.abstract,
+      paper.keywords?.join(" "),
+      paper.categories
+    ].filter(text => text).join(" ").toLowerCase();
+
+    return searchTerms.split(" ").some(term => 
+      term.length > 3 && paperText.includes(term)
+    );
+  }).slice(0, 10); // Limit to top 10 relevant papers
+}
+
+// Analyze patterns from training data
+function analyzeTrainingPatterns(relevantPapers) {
+  const allPapers = relevantPapers.length > 0 ? relevantPapers : papersData.slice(0, 20);
+  
+  const patterns = {
+    commonMethods: extractCommonMethods(allPapers),
+    commonThemes: extractCommonThemes(allPapers),
+    commonCategory: extractMostCommonCategory(allPapers),
+    commonMethod: extractMostCommonMethod(allPapers),
+    avgAccuracy: calculateAverageAccuracy(allPapers),
+    avgCitations: calculateAverageCitations(allPapers),
+    commonJournals: extractCommonJournals(allPapers),
+    commonInstitutions: extractCommonInstitutions(allPapers),
+    commonAuthors: extractCommonAuthors(allPapers),
+    yearDistribution: extractYearDistribution(allPapers),
+    keywordFrequency: extractKeywordFrequency(allPapers)
+  };
+
+  return patterns;
+}
+
+// Helper functions for pattern analysis
+function extractCommonMethods(papers) {
+  const methods = [];
+  papers.forEach(paper => {
+    if (paper.abstract) {
+      const abstract = paper.abstract.toLowerCase();
+      if (abstract.includes("machine learning")) methods.push("Machine Learning");
+      if (abstract.includes("deep learning")) methods.push("Deep Learning");
+      if (abstract.includes("neural network")) methods.push("Neural Network");
+      if (abstract.includes("svm")) methods.push("Support Vector Machine");
+      if (abstract.includes("random forest")) methods.push("Random Forest");
+      if (abstract.includes("cnn")) methods.push("Convolutional Neural Network");
+      if (abstract.includes("lstm")) methods.push("Long Short-Term Memory");
+    }
+  });
+  return [...new Set(methods)];
+}
+
+function extractCommonThemes(papers) {
+  const themes = [];
+  papers.forEach(paper => {
+    if (paper.keywords) {
+      const keywords = Array.isArray(paper.keywords) ? paper.keywords : [paper.keywords];
+      themes.push(...keywords);
+    }
+  });
+  return [...new Set(themes)].slice(0, 10);
+}
+
+function extractMostCommonCategory(papers) {
+  const categories = {};
+  papers.forEach(paper => {
+    if (paper.categories) {
+      categories[paper.categories] = (categories[paper.categories] || 0) + 1;
+    }
+  });
+  return Object.keys(categories).reduce((a, b) => 
+    categories[a] > categories[b] ? a : b, "Computer Science"
+  );
+}
+
+function extractMostCommonMethod(papers) {
+  const methods = extractCommonMethods(papers);
+  return methods.length > 0 ? methods[0] : "Machine Learning";
+}
+
+function calculateAverageAccuracy(papers) {
+  const accuracies = [];
+  papers.forEach(paper => {
+    if (paper.abstract) {
+      const abstract = paper.abstract;
+      const accuracyMatch = abstract.match(/(\d+)%/);
+      if (accuracyMatch) {
+        accuracies.push(parseInt(accuracyMatch[1]));
+      }
+    }
+  });
+  const avg = accuracies.length > 0 ? 
+    Math.round(accuracies.reduce((a, b) => a + b, 0) / accuracies.length) : 85;
+  return Math.min(95, Math.max(75, avg)); // Ensure reasonable range
+}
+
+function calculateAverageCitations(papers) {
+  const citations = papers
+    .map(p => p.citation_count || 0)
+    .filter(c => c > 0);
+  return citations.length > 0 ? 
+    Math.round(citations.reduce((a, b) => a + b, 0) / citations.length) : 10;
+}
+
+function extractCommonJournals(papers) {
+  const journals = papers
+    .map(p => p.journal)
+    .filter(j => j)
+    .slice(0, 5);
+  return [...new Set(journals)];
+}
+
+function extractCommonInstitutions(papers) {
+  const institutions = ["Universitas Indonesia", "Institut Teknologi Bandung", 
+    "Universitas Gadjah Mada", "Institut Teknologi Sepuluh Nopember"];
+  return institutions[Math.floor(Math.random() * institutions.length)];
+}
+
+function extractCommonAuthors(papers) {
+  const authors = [];
+  papers.forEach(paper => {
+    if (paper.authors) {
+      const paperAuthors = Array.isArray(paper.authors) ? paper.authors : [paper.authors];
+      authors.push(...paperAuthors);
+    }
+  });
+  return [...new Set(authors)].slice(0, 10);
+}
+
+function extractYearDistribution(papers) {
+  const years = {};
+  papers.forEach(paper => {
+    if (paper.year) {
+      years[paper.year] = (years[paper.year] || 0) + 1;
+    }
+  });
+  return years;
+}
+
+function extractKeywordFrequency(papers) {
+  const keywords = {};
+  papers.forEach(paper => {
+    if (paper.keywords) {
+      const paperKeywords = Array.isArray(paper.keywords) ? paper.keywords : [paper.keywords];
+      paperKeywords.forEach(keyword => {
+        keywords[keyword] = (keywords[keyword] || 0) + 1;
+      });
+    }
+  });
+  return keywords;
+}
+
+// Generate different sections based on patterns
+function generateTitleFromPatterns(inputTitle, patterns) {
+  if (inputTitle) return inputTitle;
+  
+  const method = patterns.commonMethod || "Machine Learning";
+  const theme = patterns.commonThemes[0] || "Data Analysis";
+  const titles = [
+    `${method} untuk ${theme}: Pendekatan Berbasis Data`,
+    `Implementasi ${method} dalam ${theme}`,
+    `Analisis ${theme} menggunakan Teknik ${method}`,
+    `Optimasi ${method} untuk Aplikasi ${theme}`
+  ];
+  return titles[Math.floor(Math.random() * titles.length)];
+}
+
+function generateAbstractFromPatterns(inputAbstract, patterns) {
+  if (inputAbstract) return inputAbstract;
+  
+  return `Penelitian ini mengimplementasikan ${patterns.commonMethod} untuk menyelesaikan masalah ${patterns.commonThemes[0] || "klasifikasi data"}. Metodologi yang digunakan meliputi preprocessing data, feature selection, dan optimasi model. Hasil eksperimen menunjukkan bahwa pendekatan yang diusulkan mampu mencapai akurasi sebesar ${patterns.avgAccuracy}% yang melampaui metode baseline. Penelitian ini memberikan kontribusi dalam pengembangan ${patterns.commonMethod} untuk aplikasi praktis di bidang ${patterns.commonCategory}.`;
+}
+
+function generateKeywordsFromPatterns(patterns) {
+  const keywords = patterns.commonThemes.slice(0, 6);
+  if (keywords.length === 0) {
+    return ["machine learning", "data analysis", "artificial intelligence"];
+  }
+  return keywords;
+}
+
+function generateMethodologyFromPatterns(inputMethod, patterns) {
+  if (inputMethod) return inputMethod;
+  
+  return `Penelitian ini menggunakan pendekatan ${patterns.commonMethod} dengan tahapan sebagai berikut: (1) Pengumpulan dan preprocessing data, (2) Ekstraksi fitur yang relevan, (3) Pemodelan menggunakan ${patterns.commonMethods.join(", ")}, (4) Evaluasi model menggunakan cross-validation, dan (5) Optimasi hyperparameter untuk mendapatkan performa terbaik.`;
+}
+
+function generateAuthorsFromPatterns(patterns) {
+  const indonesianNames = [
+    "Ahmad Budi Santoso", "Siti Nurhaliza", "Rudi Hermawan", 
+    "Maya Sari", "Dewi Lestari", "Andi Wijaya"
+  ];
+  const selectedAuthors = indonesianNames
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 2 + Math.floor(Math.random() * 2));
+  return selectedAuthors.join(", ");
+}
+
+function generateInstitutionFromPatterns(patterns) {
+  return patterns.commonInstitutions;
+}
+
+function generateIntroductionFromPatterns(patterns) {
+  return `Perkembangan ${patterns.commonMethod} dalam dekade terakhir telah membawa kemajuan signifikan dalam bidang ${patterns.commonCategory}. Berdasarkan analisis terhadap ${patterns.commonThemes.length} tema penelitian utama, teridentifikasi bahwa ${patterns.commonThemes[0]} menjadi fokus utama penelitian. Penelitian ini bertujuan untuk mengisi gap yang ada dalam literature dengan mengembangkan pendekatan baru yang lebih efektif.`;
+}
+
+function generateProblemStatementFromPatterns(patterns) {
+  return `Berdasarkan analisis literatur dari ${papersData.length} paper Indonesian CS, ditemukan bahwa:\n• Metode ${patterns.commonMethod} masih memiliki keterbatasan dalam hal akurasi\n• Penelitian sebelumnya rata-rata mencapai ${patterns.avgAccuracy}% accuracy\n• Diperlukan pendekatan yang lebih optimal untuk meningkatkan performa`;
+}
+
+function generateObjectivesFromPatterns(patterns) {
+  return `Tujuan penelitian ini adalah:\n• Mengembangkan model ${patterns.commonMethod} yang lebih akurat\n• Mencapai akurasi di atas ${patterns.avgAccuracy + 5}%\n• Melakukan evaluasi komprehensif terhadap metode yang diusulkan\n• Memberikan kontribusi untuk pengembangan ${patterns.commonCategory}`;
+}
+
+function generateDataSectionFromPatterns(patterns) {
+  return `Dataset yang digunakan dalam penelitian ini mengikuti standar yang umum digunakan dalam penelitian ${patterns.commonCategory}. Preprocessing data meliputi normalisasi, feature scaling, dan handling missing values. Berdasarkan analisis pattern dari training data, teknik preprocessing yang paling efektif adalah yang digunakan dalam ${patterns.commonMethods.join(" dan ")}.`;
+}
+
+function generateModelSectionFromPatterns(patterns) {
+  return `Model yang dikembangkan menggunakan arsitektur ${patterns.commonMethod} dengan optimasi hyperparameter. Berdasarkan analisis dari paper-paper terkait, konfigurasi optimal meliputi:\n• Learning rate: 0.001-0.01\n• Batch size: 32-128\n• Epochs: 50-200\n• Optimizer: Adam atau SGD\n\nArsitektur model disesuaikan dengan karakteristik data dan mengadopsi best practices dari penelitian sebelumnya.`;
+}
+
+function generateEvaluationFromPatterns(patterns) {
+  return `Evaluasi model menggunakan metrik standar yang umum digunakan dalam penelitian ${patterns.commonCategory}:\n• Accuracy, Precision, Recall, F1-Score\n• Cross-validation dengan k=5\n• Confusion matrix analysis\n• ROC-AUC score\n\nBerdasarkan analisis dari ${papersData.length} paper, kombinasi metrik ini memberikan gambaran komprehensif tentang performa model.`;
+}
+
+function generateResultsFromPatterns(patterns) {
+  const accuracy = patterns.avgAccuracy + Math.floor(Math.random() * 8) + 2;
+  const precision = accuracy - Math.floor(Math.random() * 3);
+  const recall = accuracy - Math.floor(Math.random() * 4);
+  const f1 = Math.round((precision + recall) / 2);
+  
+  return `Hasil eksperimen menunjukkan performa yang memuaskan:\n\n• Accuracy: ${accuracy}%\n• Precision: ${precision}%\n• Recall: ${recall}%\n• F1-Score: ${f1}%\n\nHasil ini melampaui baseline yang ditetapkan dan menunjukkan improvement dibandingkan dengan metode yang ada dalam literature.`;
+}
+
+function generatePerformanceAnalysisFromPatterns(patterns) {
+  return `Analisis performa menunjukkan bahwa model yang dikembangkan berhasil mencapai target yang ditetapkan. Dibandingkan dengan rata-rata akurasi ${patterns.avgAccuracy}% dari penelitian sebelumnya, model ini menunjukkan peningkatan yang signifikan. Faktor-faktor yang berkontribusi terhadap performa tinggi adalah:\n• Optimasi arsitektur model\n• Teknik preprocessing yang efektif\n• Hyperparameter tuning yang optimal\n• Penggunaan teknik regularization`;
+}
+
+function generateComparisonFromPatterns(patterns) {
+  return `Perbandingan dengan penelitian sebelumnya:\n\n${patterns.commonMethods.map(method => 
+    `• ${method}: Peningkatan ${Math.floor(Math.random() * 10) + 3}% dibanding baseline`
+  ).join('\n')}\n\nPenelitian ini memberikan kontribusi signifikan dengan mencapai state-of-the-art performance dalam domain ${patterns.commonCategory}.`;
+}
+
+function generateConclusionFromPatterns(patterns) {
+  return `Penelitian ini berhasil mengembangkan model ${patterns.commonMethod} yang efektif untuk ${patterns.commonThemes[0]}. Hasil eksperimen menunjukkan bahwa pendekatan yang diusulkan mampu mencapai akurasi ${patterns.avgAccuracy + 5}%, yang melampaui metode-metode sebelumnya. Kontribusi utama penelitian ini meliputi:\n• Pengembangan arsitektur model yang optimal\n• Implementasi teknik preprocessing yang efektif\n• Validasi komprehensif terhadap metode yang diusulkan`;
+}
+
+function generateFutureWorkFromPatterns(patterns) {
+  return `• Eksplorasi dengan dataset yang lebih besar dan beragam\n• Implementasi ensemble methods untuk meningkatkan robustness\n• Pengembangan real-time system untuk aplikasi praktis\n• Penelitian lebih lanjut tentang interpretability model\n• Integrasi dengan teknologi ${patterns.commonThemes.slice(1, 3).join(" dan ")}`;
+}
+
+function generateReferencesFromTrainingData(relevantPapers) {
+  if (relevantPapers.length === 0) {
+    return "No relevant papers found in training data.";
+  }
+  
+  return relevantPapers.slice(0, 10).map((paper, index) => {
+    const authors = Array.isArray(paper.authors) ? 
+      paper.authors.join(", ") : 
+      (paper.authors || "Unknown Author");
+    
+    return `[${index + 1}] ${authors} (${paper.year || "N/A"}). ${paper.title || "Untitled"}. ${paper.journal || "Unknown Journal"}.`;
+  }).join("\n\n");
+}
+
+// Show alert
+function showAlert(containerId, type, message) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  const alertDiv = document.createElement("div");
+  alertDiv.className = `alert alert-${type}`;
+  alertDiv.innerHTML = `<strong>${
+    type === "success"
+      ? "Success!"
+      : type === "error"
+      ? "Error!"
+      : "Info:"
+  }</strong> ${message}`;
+
+  container.parentNode.insertBefore(alertDiv, container);
+
+  setTimeout(() => {
+    alertDiv.remove();
+  }, 5000);
+}
+
+// Initialize application when page loads
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("DOM loaded, initializing...");
+  init();
+
+  // Add search functionality with Enter key
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput) {
+    searchInput.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        searchPapers();
+      }
+    });
+  }
+});
+
+// Add dynamic placeholder text
+const placeholders = [
+  "Cari paper tentang machine learning...",
+  "Temukan penelitian deep learning...",
+  "Eksplorasi AI dalam healthcare...",
+  "Analisis sentimen media sosial...",
+  "Sistem rekomendasi e-commerce...",
+];
+
+let placeholderIndex = 0;
+setInterval(() => {
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput && document.activeElement !== searchInput) {
+    searchInput.placeholder = placeholders[placeholderIndex];
+    placeholderIndex = (placeholderIndex + 1) % placeholders.length;
+  }
+}, 3000);
+    </script>
+</body>
+</html>
